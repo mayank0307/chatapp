@@ -19,7 +19,7 @@ var db *sqlx.DB
 func main() {
 	var err error
 	var dbURL string
-
+	fmt.Println("starting database...")
 	// Check if DATABASE_URL is set (for Render deployment)
 	if os.Getenv("DATABASE_URL") != "" {
 		dbURL = os.Getenv("DATABASE_URL") // Use Render-provided database URL
@@ -42,7 +42,7 @@ func main() {
 
 	// CORS Middleware
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}), // Update if deploying frontend separately
+		handlers.AllowedOrigins([]string{"https://chatapp-1-t7sw.onrender.com"}), // Allow your frontend
 		handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
