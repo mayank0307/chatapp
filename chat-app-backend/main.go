@@ -18,10 +18,13 @@ var db *sqlx.DB
 
 func main() {
 	var err error
-	// Use Render-provided DATABASE_URL environment variable
-	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL == "" {
-		log.Fatal("DATABASE_URL is not set")
+	var dbURL string
+
+	// Check if DATABASE_URL is set (for Render deployment)
+	if os.Getenv("DATABASE_URL") != "" {
+		dbURL = os.Getenv("DATABASE_URL") // Use Render-provided database URL
+	} else {
+		dbURL = "postgres://mayank:@localhost:5432/chatdb?sslmode=disable" // Local development database
 	}
 
 	db, err = sqlx.Connect("postgres", dbURL)
@@ -39,7 +42,7 @@ func main() {
 
 	// CORS Middleware
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}), // Update this if deploying frontend separately
+		handlers.AllowedOrigins([]string{"http://localhost:3000"}), // Update if deploying frontend separately
 		handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
@@ -51,10 +54,10 @@ func main() {
 		websockets.ServeWS(pool, w, r)
 	})
 
-	// **Render-Specific Port Handling**
-	port := os.Getenv("PORT") // Get the port assigned by Render
+	// Use PORT from environment or default to 8080
+	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // Fallback for local development
+		port = "10000"
 	}
 
 	fmt.Println("Server running on port " + port)
