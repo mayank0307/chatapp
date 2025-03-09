@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"chat-app-backend/models"
 	"chat-app-backend/websockets"
@@ -17,7 +18,13 @@ var db *sqlx.DB
 
 func main() {
 	var err error
-	db, err = sqlx.Connect("postgres", "postgres://mayank:@localhost:5432/chatdb?sslmode=disable")
+	// Use Render-provided DATABASE_URL environment variable
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		log.Fatal("DATABASE_URL is not set")
+	}
+
+	db, err = sqlx.Connect("postgres", dbURL)
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
@@ -32,20 +39,24 @@ func main() {
 
 	// CORS Middleware
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}), // Allow frontend to access backend
+		handlers.AllowedOrigins([]string{"http://localhost:3000"}), // Update this if deploying frontend separately
 		handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 
 	// Define Routes
-	http.HandleFunc("/login", loginHandler(db)) // ✅ Using loginHandler from auth.go
-	http.HandleFunc("/register", RegisterUser(db)) // ✅ Using RegisterUser from auth.go
+	http.HandleFunc("/login", loginHandler(db))
+	http.HandleFunc("/register", RegisterUser(db))
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websockets.ServeWS(pool, w, r)
 	})
 
-	// Start server
-	port := "8080"
-	fmt.Println("Server running on http://localhost:" + port)
+	// **Render-Specific Port Handling**
+	port := os.Getenv("PORT") // Get the port assigned by Render
+	if port == "" {
+		port = "8080" // Fallback for local development
+	}
+
+	fmt.Println("Server running on port " + port)
 	log.Fatal(http.ListenAndServe(":"+port, corsHandler(http.DefaultServeMux)))
 }
