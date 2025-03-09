@@ -24,7 +24,7 @@ const Register = () => {
     try {
       const backendURL = process.env.REACT_APP_BACKEND_URL;
       console.log("backend url is: ", backendURL);
-      const response = await fetch(`${backendURL}/register`, {
+      const response = await fetch("https://chatapp-17ni.onrender.com/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
