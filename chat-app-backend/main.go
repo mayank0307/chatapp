@@ -61,5 +61,5 @@ func main() {
 	}
 
 	fmt.Println("Server running on port:  " + port)
-	log.Fatal(http.ListenAndServe(":"+port, corsHandler(http.DefaultServeMux)))
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, corsHandler(http.DefaultServeMux)))
 }
