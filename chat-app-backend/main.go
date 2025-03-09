@@ -57,7 +57,7 @@ func main() {
 	// Use PORT from environment or default to 8080
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "10000"
+		port = "10001"
 	}
 
 	fmt.Println("Server running on port " + port)
