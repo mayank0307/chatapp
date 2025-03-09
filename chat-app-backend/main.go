@@ -42,7 +42,7 @@ func main() {
 
 	// CORS Middleware
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"https://chatapp-1-t7sw.onrender.com"}), // Allow your frontend
+		handlers.AllowedOrigins([]string{"https://chatapp-17ni.onrender.com"}), // Allow your frontend
 		handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
