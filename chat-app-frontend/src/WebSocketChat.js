@@ -9,7 +9,8 @@ const WebSocketChat = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
   
-    const ws = new WebSocket(`ws://localhost:8080/ws?token=${token}`);
+    // 🔄 Update WebSocket URL to Render deployment
+    const ws = new WebSocket(`wss://chatapp-17ni.onrender.com/ws?token=${token}`);
   
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
@@ -24,7 +25,7 @@ const WebSocketChat = () => {
 
   const sendMessage = () => {
     if (socket && message) {
-      const data = JSON.stringify(message); // ❌ This is wrong (message is a plain string)
+      const data = JSON.stringify({ text: message }); // ✅ Send as an object
       socket.send(data);
       setMessage("");
     }
@@ -36,7 +37,7 @@ const WebSocketChat = () => {
       <h2>Chat Room</h2>
       <div>
         {messages.map((msg, index) => (
-          <p key={index}>{msg}</p>
+          <p key={index}>{msg.text}</p> // ✅ Show actual message text
         ))}
       </div>
       <input
