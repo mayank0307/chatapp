@@ -43,5 +43,6 @@
   "engines": {
     "node": "14.21.1"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "homepage": "/"
 }
