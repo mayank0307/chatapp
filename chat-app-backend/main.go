@@ -60,6 +60,6 @@ func main() {
 		port = "10001"
 	}
 
-	fmt.Println("Server running on port " + port)
+	fmt.Println("Server running on port:  " + port)
 	log.Fatal(http.ListenAndServe(":"+port, corsHandler(http.DefaultServeMux)))
 }
