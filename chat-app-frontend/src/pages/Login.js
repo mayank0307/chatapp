@@ -11,7 +11,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const backendURL = process.env.REACT_APP_BACKEND_URL;
+      const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
       const response = await fetch(`${backendURL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

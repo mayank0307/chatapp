@@ -14,7 +14,7 @@ const WebSocketProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (!token) return; // Don't connect if the user is not authenticated
 
-    const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+    const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
     const wsProtocol = backendURL.startsWith("https") ? "wss" : "ws"; // Use "wss" for secure connections
     const wsURL = `${wsProtocol}://${backendURL.replace(/^https?:\/\//, '')}/ws?token=${token}`;
 
