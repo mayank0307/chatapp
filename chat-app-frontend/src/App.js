@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createContext, useEffect, useState } from "react";
 import Login from "./pages/Login";
 import Chat from "./pages/Chat";
@@ -14,7 +14,13 @@ const WebSocketProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (!token) return; // Don't connect if the user is not authenticated
 
-    const socket = new WebSocket(`ws://localhost:8080/ws?token=${token}`);
+    const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+    const wsProtocol = backendURL.startsWith("https") ? "wss" : "ws"; // Use "wss" for secure connections
+    const wsURL = `${wsProtocol}://${backendURL.replace(/^https?:\/\//, '')}/ws?token=${token}`;
+
+    console.log("🔗 Connecting to WebSocket:", wsURL);
+    
+    const socket = new WebSocket(wsURL);
 
     socket.onopen = () => console.log("✅ WebSocket Connected!");
     
@@ -27,7 +33,7 @@ const WebSocketProvider = ({ children }) => {
     socket.onclose = () => {
       console.warn("⚠️ WebSocket Disconnected! Reconnecting...");
       setTimeout(() => {
-        setWs(new WebSocket(`ws://localhost:8080/ws?token=${token}`));
+        setWs(new WebSocket(wsURL));
       }, 3000);
     };
 
