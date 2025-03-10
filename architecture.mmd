@@ -1,0 +1,89 @@
+flowchart TB
+    %% Frontend Components
+    User((User))
+    subgraph "Frontend (React)"
+        UI[User Interface]
+        LoginComp[Login Component]
+        RegisterComp[Register Component]
+        ChatComp[Chat Component]
+        WSContext[WebSocket Context]
+        LocalStorage[(localStorage)]
+        MessageState["In-Memory Messages (Temporary)"]
+    end
+    
+    %% Backend Components
+    subgraph "Backend (Go)"
+        subgraph "HTTP Services"
+            LoginAPI["/login API"]
+            RegisterAPI["/register API"]
+            AuthMW[Auth Middleware]
+        end
+        
+        subgraph "WebSocket Services"
+            WSHandler["/ws Handler"]
+            ClientMgr[Client Manager]
+            Pool["Client Pool (In-Memory Messages)"]
+        end
+        
+        subgraph "Database"
+            DB[(PostgreSQL)]
+            UserTable[Users Table]
+        end
+    end
+    
+    %% User Interactions
+    User -->|Interacts with| UI
+    UI -->|Login Form| LoginComp
+    UI -->|Register Form| RegisterComp
+    UI -->|Chat Interface| ChatComp
+    
+    %% Authentication Flow
+    LoginComp -->|POST credentials| LoginAPI
+    RegisterComp -->|POST new account| RegisterAPI
+    LoginAPI -->|Query user| DB
+    RegisterAPI -->|Create user| DB
+    LoginAPI -->|Return JWT| LoginComp
+    RegisterAPI -->|Return status| RegisterComp
+    LoginComp -->|Store token| LocalStorage
+    
+    %% WebSocket Flow
+    ChatComp -->|Uses| WSContext
+    WSContext -->|Connect with token| WSHandler
+    WSHandler -->|Validate token| AuthMW
+    AuthMW -->|Query user| DB
+    WSHandler -->|Register client| ClientMgr
+    ClientMgr -->|Add to| Pool
+    
+    %% Message Flow (Ephemeral)
+    ChatComp -->|Send message| WSContext
+    WSContext -->|Store locally| MessageState
+    WSContext -->|WebSocket send| WSHandler
+    WSHandler -->|Broadcast| Pool
+    Pool -->|Distribute to clients| ClientMgr
+    ClientMgr -->|Send to client| WSContext
+    WSContext -->|Update| MessageState
+    MessageState -->|Display in| ChatComp
+    ChatComp -->|Render messages| UI
+    
+    %% Message Loss Events
+    Disconnect[User Disconnects or Refreshes]
+    Disconnect -->|Clears| MessageState
+    Disconnect -->|Removes from| Pool
+    
+    %% Database Relationships
+    DB --- UserTable
+    
+    %% Styling
+    classDef frontend fill:#f9f,stroke:#333,stroke-width:2px
+    classDef backend fill:#bbf,stroke:#333,stroke-width:2px
+    classDef database fill:#bfb,stroke:#333,stroke-width:2px
+    classDef ephemeral fill:#ffcc99,stroke:#333,stroke-width:2px
+    classDef user fill:orange,stroke:#333,stroke-width:2px
+    classDef event fill:red,stroke:#333,stroke-width:2px,color:white
+    
+    class User,UI,LoginComp,RegisterComp,ChatComp,WSContext,LocalStorage frontend
+    class LoginAPI,RegisterAPI,AuthMW,WSHandler,ClientMgr,Pool backend
+    class DB,UserTable database
+    class User user
+    class MessageState,Pool ephemeral
+    class Disconnect event
